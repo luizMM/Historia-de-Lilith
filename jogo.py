@@ -1,9 +1,10 @@
 import pygame
+import math
 from mapa import mapa
 
 pygame.init()
 
-FPS = 60
+FPS = 70
 WIDTH = 800
 HEIGHT = 700
 
@@ -13,6 +14,7 @@ pygame.display.set_caption('Histora de Lilith')
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 50
 
+#Carrega todos os assets
 def load_assets():
     assets = {}
     assets['esquerda'] = pygame.image.load('assets/img/parede esquerda-1.png.png').convert()
@@ -22,6 +24,7 @@ def load_assets():
     assets['baixo'] = pygame.image.load('assets/img/baixo-1.png.png').convert()
     return assets
 
+#classe jogador
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -42,8 +45,6 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = HEIGHT/2
         self.rect.centerx = WIDTH/2
-        self.speedx = 0
-        self.speedy = 0
 
     def update(self):
         self.frame += 0.12
@@ -52,58 +53,22 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animation[int(self.frame)]
         self.image = pygame.transform.scale(self.image, (PLAYER_WIDTH,PLAYER_HEIGHT))
 
-        bkpx = self.rect.x
-        bkpy = self.rect.y
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
-        i = (self.rect.x + (PLAYER_WIDTH//2) - 100) // 50
-        j = (self.rect.y + (PLAYER_HEIGHT//2) - 100) //  50
-        if i >= 0 and i < len(mapa[0]) and j >= 0 and j < len(mapa[0]):
-            if mapa[i][j] == 1:
-                self.rect.x = bkpx
-                self.rect.y = bkpy
-
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-
-class Parede(pygame.sprite.Sprite):
-    def __init__(self,x,y,assets):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.image = assets['cima']
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect= self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
+#carrega todas as imagens e informacoes na tela
 def game_screen(janela):
     clock = pygame.time.Clock()
 
+    #all_balas = pygame.sprite.Group()
     all_sprite = pygame.sprite.Group()
-    all_bricks = pygame.sprite.Group()
     groups = {}
     groups['all_sprite'] = all_sprite
-    groups['all_bricks'] = all_bricks
 
     player = Player()
+    #bala = JogadorBala()
     all_sprite.add(player)
 
     keys_down = {}
-
-    assets = load_assets()
-    for i in range(len(mapa)):
-        for j in range(len(mapa[i])):
-            if mapa[j][i] == 1:
-                x = 100 + (j) * 50
-                y = 100 + (i) * 50
-                parede = Parede(x,y,assets)
-                all_bricks.add(parede)
+    janela_mexe = [0, 0]
+    #balas_lista = []
 
     ACABOU = 0 
     JOGANDO = 1
@@ -112,32 +77,26 @@ def game_screen(janela):
     while state != ACABOU:
         clock.tick(FPS)
 
+        teclas = pygame.key.get_pressed()
+        #mouse_x, mouse_y = pygame.mouse.get_pos()
+
         for event in pygame.event.get():
             #verifica evento de fechar janela
             if event.type == pygame.QUIT:
                 state = ACABOU
             if state == JOGANDO:
-                #verifica eventos de teclas
-                if event.type == pygame.KEYDOWN:
-                    keys_down[event.key] = True
-                    if event.key == pygame.K_w:
-                        player.speedy -= 4
-                    if  event.key == pygame.K_s:
-                        player.speedy += 4
-                    if event.key == pygame.K_a:
-                        player.speedx -= 4
-                    if event.key == pygame.K_d:
-                        player.speedx += 4
-                if event.type == pygame.KEYUP:
-                    if event.key in keys_down and keys_down[event.key]:
-                        if event.key == pygame.K_w:
-                            player.speedy += 4
-                        if  event.key == pygame.K_s:
-                            player.speedy -= 4
-                        if event.key == pygame.K_a:
-                            player.speedx += 4
-                        if event.key == pygame.K_d:
-                            player.speedx -= 4
+                if teclas[pygame.K_w]:
+                    janela_mexe[1] -= 5
+                if teclas[pygame.K_s]:
+                    janela_mexe[1] += 5
+                if teclas[pygame.K_a]:
+                    janela_mexe[0] -= 5
+                if teclas[pygame.K_d]:
+                    janela_mexe[0] += 5
+            #if event.type == pygame.MOUSEBUTTONDOWN:
+            #    if event.button == 1:
+            #        balas_lista.append(JogadorBala(player.x, player.y, mouse_x, mouse_y))
+
         #atualiza todas sprites
         all_sprite.update()
 
@@ -145,7 +104,7 @@ def game_screen(janela):
         janela.fill((99,32,61))
 
         #desenha tas as sprite na tela
-        all_bricks.draw(janela)
+        pygame.draw.rect(janela, (255, 255, 255), (100-janela_mexe[0], 100-janela_mexe[1], 16, 16))
         all_sprite.draw(janela)
 
         #atualiza a tela
