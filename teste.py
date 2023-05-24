@@ -7,6 +7,14 @@ janela = pygame.display.set_mode((800,600))
 pygame.display.set_caption('So pra testar')
 
 clock = pygame.time.Clock()
+animation = []
+animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-1.png.png').convert_alpha())
+animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-2.png.png').convert_alpha())
+animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-3.png.png').convert_alpha())
+animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-4.png.png').convert_alpha())
+animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-5.png.png').convert_alpha())
+animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-6.png.png').convert_alpha())
+animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-7.png.png').convert_alpha())
 
 class Jogador:
     def __init__(self, x, y, largura, altura):
@@ -14,8 +22,13 @@ class Jogador:
         self.y = y
         self.largura = largura
         self.altura = altura
+        self.frame = 0
     def main(self, janela):
-        pygame.draw.rect(janela, (255, 0, 0), (self.x, self.y, self.largura, self.altura))
+        if self.frame + 0.3 >= 16:
+            self.frame = 0
+        self.frame += 0.3
+        janela.blit(pygame.transform.scale(animation[int(self.frame)//4], (42, 42)), (self.x, self.y))
+        #pygame.draw.rect(janela, (255, 0, 0), (self.x, self.y, self.largura, self.altura))
 
 class BalaJogador:
     def __init__(self, x, y, mouse_x, mouse_y):
