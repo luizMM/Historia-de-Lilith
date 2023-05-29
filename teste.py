@@ -21,6 +21,10 @@ animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-7
 inimigo_image = pygame.image.load('assets/img/amogus-1.png.png').convert_alpha()
 inimigo_image = pygame.transform.scale(inimigo_image, (32,32))
 
+arma = pygame.image.load('assets/img/Arma-1.png.png').convert_alpha()
+arma = pygame.transform.scale(arma, (45,45))
+
+
 class Jogador:
     def __init__(self, x, y, largura, altura):
         self.x = x
@@ -30,6 +34,17 @@ class Jogador:
         self.frame = 0
         self.moverEsquerda = False
         self.moverDireita = False
+
+    def arma_mao(self, janela):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        rel_x, rel_y = mouse_x - jogador.x, mouse_y - jogador.y
+        angulo = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+
+        arma_copia = pygame.transform.rotate(arma, int(angulo))
+
+        janela.blit(arma_copia,(self.x+32-int(arma_copia.get_width()/2), self.y+16-int(arma_copia.get_height()/2)))
+        
+                    
     def main(self, janela):
         if self.frame + 0.3 >= 16:
             self.frame = 0
@@ -40,6 +55,8 @@ class Jogador:
             janela.blit(pygame.transform.flip(pygame.transform.scale(animation[int(self.frame)//4], (42, 42)), True, False), (self.x, self.y))
         else:
             janela.blit(pygame.transform.scale(animation[int(self.frame)//4], (42, 42)), (self.x, self.y))
+
+        self.arma_mao(janela)
 
         self.moverEsquerda = False
         self.moverDireita = False
@@ -61,7 +78,7 @@ class BalaJogador:
         pygame.draw.circle(janela, (0,0,0), (self.x, self.y), 5)
 
 class Inimigo:
-    def init(self,çx, y):
+    def __init__(self, x, y):
         self.image = inimigo_image
         self.x = x
         self.y = y
@@ -94,7 +111,7 @@ inimigo_lista = []
 for i in range(12):
     x = random.randint(-800, 800)
     y = random.randint(-600, 600)
-    inimigo = Inimigo(x,y)
+    inimigo = Inimigo(x, y)
     inimigo_lista.append(inimigo)
 
 JOGANDO = True
@@ -109,7 +126,7 @@ while JOGANDO:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                balas_lista.append(BalaJogador(jogador.x, jogador.y, mouse_x, mouse_y))
+                balas_lista.append(BalaJogador(jogador.x+32, jogador.y+19, mouse_x, mouse_y))
         
     teclas = pygame.key.get_pressed()
 
