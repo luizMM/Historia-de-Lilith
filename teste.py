@@ -23,12 +23,21 @@ class Jogador:
         self.largura = largura
         self.altura = altura
         self.frame = 0
+        self.moverEsquerda = False
+        self.moverDireita = False
     def main(self, janela):
         if self.frame + 0.3 >= 16:
             self.frame = 0
         self.frame += 0.3
-        janela.blit(pygame.transform.scale(animation[int(self.frame)//4], (42, 42)), (self.x, self.y))
-        #pygame.draw.rect(janela, (255, 0, 0), (self.x, self.y, self.largura, self.altura))
+        if self.moverDireita:
+            janela.blit(pygame.transform.scale(animation[int(self.frame)//4], (42, 42)), (self.x, self.y))
+        elif self.moverEsquerda:
+            janela.blit(pygame.transform.flip(pygame.transform.scale(animation[int(self.frame)//4], (42, 42)), True, False), (self.x, self.y))
+        else:
+            janela.blit(pygame.transform.scale(animation[int(self.frame)//4], (42, 42)), (self.x, self.y))
+
+        self.moverEsquerda = False
+        self.moverDireita = False
 
 class BalaJogador:
     def __init__(self, x, y, mouse_x, mouse_y):
@@ -72,8 +81,10 @@ while JOGANDO:
 
     if teclas[pygame.K_a]:
         janela_mexe[0] -= 5
+        jogador.moverEsquerda = True
     if teclas[pygame.K_d]:
         janela_mexe[0] += 5
+        jogador.moverDireita = True
     if teclas[pygame.K_w]:
         janela_mexe[1] -= 5
     if teclas[pygame.K_s]:
