@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 pygame.init()
 
@@ -7,6 +8,7 @@ janela = pygame.display.set_mode((800,600))
 pygame.display.set_caption('So pra testar')
 
 clock = pygame.time.Clock()
+
 animation = []
 animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-1.png.png').convert_alpha())
 animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-2.png.png').convert_alpha())
@@ -15,6 +17,9 @@ animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-4
 animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-5.png.png').convert_alpha())
 animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-6.png.png').convert_alpha())
 animation.append(pygame.image.load('assets/img/animacao player/Lilith_animacao-7.png.png').convert_alpha())
+
+inimigo_image = pygame.image.load('assets/img/amogus-1.png.png').convert_alpha()
+inimigo_image = pygame.transform.scale(inimigo_image, (32,32))
 
 class Jogador:
     def __init__(self, x, y, largura, altura):
@@ -55,11 +60,42 @@ class BalaJogador:
 
         pygame.draw.circle(janela, (0,0,0), (self.x, self.y), 5)
 
+class Inimigo:
+    def init(self,çx, y):
+        self.image = inimigo_image
+        self.x = x
+        self.y = y
+        self.offset_reset = 0
+        self.offset_x = random.randrange(-150, 150)
+        self.offset_y = random.randrange(-150, 150)
+
+
+    def main(self, janela):
+        if jogador.x > self.x - janela_mexe[0]:
+            self.x += 0.7
+            #janela.blit(pygame.transform.scale(pygame.transform.flip(self.image, True, False) (32,32)), (int(self.x)-janela_mexe[0], int(self.y)-janela_mexe[1]))
+        elif jogador.x < self.x - janela_mexe[0]:
+            self.x -= 0.7
+            #janela.blit(pygame.transform.scale(self.image, (32,32)), (int(self.x)-janela_mexe[0], int(self.y)-janela_mexe[1]))
+        if jogador.y > self.y - janela_mexe[1]:
+            self.y += 0.7
+        elif jogador.y < self.y - janela_mexe[1]:
+            self.y -= 0.7
+
+        janela.blit(pygame.transform.scale(self.image, (32,32)), (int(self.x)-janela_mexe[0], int(self.y)-janela_mexe[1]))
+
 jogador = Jogador(400, 300, 32, 32)
 
 janela_mexe = [0,0]
 
 balas_lista = []
+
+inimigo_lista = []
+for i in range(12):
+    x = random.randint(-800, 800)
+    y = random.randint(-600, 600)
+    inimigo = Inimigo(x,y)
+    inimigo_lista.append(inimigo)
 
 JOGANDO = True
 while JOGANDO:
@@ -94,6 +130,9 @@ while JOGANDO:
 
     for balas in balas_lista:
         balas.main(janela)
+
+    for inimigo in inimigo_lista:
+        inimigo.main(janela)
 
     clock.tick(60)
     pygame.display.update()
