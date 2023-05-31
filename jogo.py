@@ -53,22 +53,45 @@ class Player(pygame.sprite.Sprite):
         self.image = self.animation[int(self.frame)]
         self.image = pygame.transform.scale(self.image, (PLAYER_WIDTH,PLAYER_HEIGHT))
 
+    def shoot(self):
+        mouse_pos = pygame.mouse.get_pos()
+        nova_bala = BalaJogador(self.rect.bottom, self.rect.centerx, mouse_pos[0], mouse_pos[1])
+        self.groups['all_sprites'].add(nova_bala)
+        self.groups['all_bullets'].add(nova_bala)
+
+class BalaJogador(pygame.sprite.Sprite):
+    def __init__(self, x, y, mouse_x, mouse_y):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load('assets/img/Bala-1.png.png')
+        self.x = x
+        self.y = y
+        self.mouse_x = mouse_x
+        self.mouse_y = mouse_y
+        self.speed = 15
+        self.angulo = math.atan2(x-mouse_x, y-mouse_y)
+        self.speedx = math.cos(self.angulo)*self.speed
+        self.speedy = math.sin(self.angulo)*self.speed
+    def update(self):
+        self.x -= self.speedx
+        self.y -= self.speedy
+
 #carrega todas as imagens e informacoes na tela
 def game_screen(janela):
     clock = pygame.time.Clock()
 
-    #all_balas = pygame.sprite.Group()
+    all_balas = pygame.sprite.Group()
     all_sprite = pygame.sprite.Group()
     groups = {}
     groups['all_sprite'] = all_sprite
+    groups['all_balas'] = all_balas
 
     player = Player()
-    #bala = JogadorBala()
     all_sprite.add(player)
 
     keys_down = {}
     janela_mexe = [0, 0]
-    #balas_lista = []
+
 
     ACABOU = 0 
     JOGANDO = 1
@@ -84,21 +107,23 @@ def game_screen(janela):
             #verifica evento de fechar janela
             if event.type == pygame.QUIT:
                 state = ACABOU
-            if state == JOGANDO:
-                if teclas[pygame.K_w]:
-                    janela_mexe[1] -= 5
-                if teclas[pygame.K_s]:
-                    janela_mexe[1] += 5
-                if teclas[pygame.K_a]:
-                    janela_mexe[0] -= 5
-                if teclas[pygame.K_d]:
-                    janela_mexe[0] += 5
-            #if event.type == pygame.MOUSEBUTTONDOWN:
-            #    if event.button == 1:
-            #        balas_lista.append(JogadorBala(player.x, player.y, mouse_x, mouse_y))
+        if state == JOGANDO:
+            if teclas[pygame.K_w]:
+                janela_mexe[1] -= 5
+            if teclas[pygame.K_s]:
+                janela_mexe[1] += 5
+            if teclas[pygame.K_a]:
+                janela_mexe[0] -= 5
+            if teclas[pygame.K_d]:
+                janela_mexe[0] += 5
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    player.shoot()
 
+
+                    
         #atualiza todas sprites
-        all_sprite.update()
+        all_sprite.update() 
 
         #pinta a janela de uma cor
         janela.fill((99,32,61))
